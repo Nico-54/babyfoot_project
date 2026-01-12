@@ -38,6 +38,7 @@ export const register = async (req: Request, res: Response) => {
             }
         }
         // Erreur inconnue
+        console.error("Détail de l'erreur 500 :", error);
         return res.status(500).json({ message: "Erreur lors de la création "})
     }
 }

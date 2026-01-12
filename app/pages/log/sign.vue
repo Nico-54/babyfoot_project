@@ -1,9 +1,35 @@
+<template>
+  <div class="flex flex-col items-center justify-center gap-4 p-4">
+    <UPageCard class="w-full max-w-md">
+        <UAuthForm
+            :schema="schema"
+            icon="i-lucide-user"
+            :title="isSignUp ? 'Créer un compte' : 'Connexion'"
+            :description="isSignUp ? 'Rejoignez la ligue de Babyfoot !' : 'Heureux de vous revoir !'"
+            :fields="fields"
+            :submit-label="isSignUp ? 'S\'inscrire' : 'Se connecter'"
+            @submit="onSubmit"
+        >
+        <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
+            <template #footer>
+                <div class="flex items-center gap-2 mt-4">
+                    <UCheckbox v-model="isSignUp" label="Je n'ai pas encore de compte" />
+                </div>
+            </template>
+        </UAuthForm>
+    </UPageCard>
+  </div>
+</template>
+
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 // Etat pour basculer entre Login et Inscription
 const isSignUp = ref(false);
+
+// Message d'erreur
+const errorMessage = ref('')
 
 // Champs dynamiques
 const fields = computed(() => {
@@ -44,35 +70,33 @@ const schema = computed(() => {
 // z.infer pour suivre les changements du schéma
 type Schema = z.infer<typeof schema>
 
-function onSubmit(payload: FormSubmitEvent<Schema>) {
-    // A retirer en prod
+async function onSubmit(payload: FormSubmitEvent<any>) {
+    errorMessage.value = ''
+
     if (isSignUp.value) {
-        console.log('Inscription avec :', payload)
+        // Extraction des données
+        const bodyData = payload.data as Record<string, any>
+
+        console.log('Inscription avec :', payload.data)
+        const { data, error } = await useFetch('http://localhost:5000/api/users/register', {
+            method: 'POST',
+            body: bodyData,
+            onResponseError({ response }) {
+                if (response.status === 409) {
+                    errorMessage.value = "Email déjà utilisé"
+                } else if (response.status === 400) {
+                    errorMessage.value = "Une erreur est survenue"
+                }
+            }
+        })
+
+        if (data.value) {
+            // Inscription réussie
+            isSignUp.value = !isSignUp.value
+        }
+
     } else {
         console.log('Connexion avec :', payload)
     }
 }
 </script>
-
-<template>
-  <div class="flex flex-col items-center justify-center gap-4 p-4">
-    <UPageCard class="w-full max-w-md">
-        <UAuthForm
-            :schema="schema"
-            icon="i-lucide-user"
-            :title="isSignUp ? 'Créer un compte' : 'Connexion'"
-            :description="isSignUp ? 'Rejoignez la ligue de Babyfoot !' : 'Heureux de vous revoir !'"
-            :fields="fields"
-            :submit-label="isSignUp ? 'S\'inscrire' : 'Se connecter'"
-            @submit="onSubmit"
-        >
-            <template #footer>
-                <div class="flex items-center gap-2 mt-4">
-                    <UCheckbox v-model="isSignUp" label="Je n'ai pas encore de compte" />
-                </div>
-            </template>
-        </UAuthForm>
-    </UPageCard>
-  </div>
-</template>
-
