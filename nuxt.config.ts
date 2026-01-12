@@ -1,10 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxtjs/tailwindcss'],
-  devServer: {
-    host: '0.0.0.0',
-    port: 3000
-  }
+  // 1. Force le moteur Nuxt 4
+  future: {
+    compatibilityVersion: 4,
+  },
+
+  // 2. Module Nuxt UI (qui inclut Tailwind)
+  modules: ['@nuxt/ui'],
+
+  css: ['~/assets/css/main.css'],
+
+  compatibilityDate: '2025-07-15'
 })
