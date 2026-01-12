@@ -17,7 +17,7 @@
           
           <div class="border-l border-gray-200 dark:border-gray-800 h-6 mx-2" />
           
-          <UButton to="/login" label="Connexion" />
+          <UButton to="/log/sign" label="Connexion" />
         </div>
       </UContainer>
     </nav>
