@@ -1,16 +1,18 @@
-FROM node:20-slim
+FROM node:20-bookworm-slim
+
+# On installe openssl au niveau du système Linux du container
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 
-# On installe les dépendances
 COPY package*.json ./
 RUN npm install
 
-# Le reste du code est monté via les volumes dans docker-compose
-# mais on COPY quand même pour la cohérence
 COPY . .
+
+# On génère le client à l'intérieur du container pour être sûr
+RUN npx prisma generate
 
 EXPOSE 5000
 
-# On utilise l'exécutable installé localement
 CMD ["npm", "run", "dev"]

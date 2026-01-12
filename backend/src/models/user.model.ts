@@ -10,7 +10,11 @@ export const userSchema = z.object({
 
 export type User = z.infer<typeof userSchema>
 
-export interface UserDocument extends User {
-    id: string
-    createdAt: Date
+export type UserPublic = {
+  id: string
+  name: string
+  email: string
+  role: string
+  createdAt: Date
+  // On n'inclut PAS le password ici
 }
