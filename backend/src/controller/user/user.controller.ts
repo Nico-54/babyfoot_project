@@ -43,6 +43,32 @@ export const register = async (req: Request, res: Response) => {
     }
 }
 
+// Méthode de connexion
+export const login = async (req: Request, res: Response) => {
+    try {
+        // Vérification existance utilisateur
+        const { email, password } = req.body
+
+        const user = await prisma.user.findUnique({ where: { email } })
+        if (!user) {
+            return res.status(401).json({ message: "Identifiants invalides" })
+        }
+
+        // Vérification hash mot de passe
+        const isValidPassword = await bcrypt.compare(password, user.password)
+        if (!isValidPassword) {
+            return res.status(401).json({ message: "Identifiants invalides" })
+        }
+
+        // Réponse succès
+        return res.status(200).json({ message: "Connexion réussie", user: { id: user.id, name: user.name, email: user.email} })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "Erreur serveur" })
+    }
+}
+
 // Méthode de récupération de tous les utilisateurs
 export const getAllUSers = async (req: Request, res: Response) => {
     try {

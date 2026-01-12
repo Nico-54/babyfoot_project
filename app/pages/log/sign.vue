@@ -97,6 +97,27 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
 
     } else {
         console.log('Connexion avec :', payload)
+        // Extraction des données
+        const bodyData = payload.data as Record<string, any>
+
+        console.log('Inscription avec :', payload.data)
+        const { data, error } = await useFetch('http://localhost:5000/api/users/login', {
+            method: 'POST',
+            body: bodyData,
+            onResponseError({ response }) {
+                if (response.status === 401) {
+                    errorMessage.value = "Identiants Invalides"
+                } else if (response.status === 500) {
+                    errorMessage.value = "Une erreur est survenue"
+                }
+            }
+        })
+
+        if (data.value) {
+            // Connexion réussie
+            navigateTo('/')
+        }
+
     }
 }
 </script>
