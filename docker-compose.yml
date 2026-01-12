@@ -1,11 +1,41 @@
 services:
   frontend:
-    build: .
+    build: ./
     ports:
       - "3000:3000"
+    networks:
+      - babyfoot-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
     volumes:
-      - .:/app
+      - ./backend:/app
       - /app/node_modules
     environment:
-      - HOST=0.0.0.0
       - NODE_ENV=development
+    networks:
+      - babyfoot-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: babyfoot-db
+    restart: always
+    environment:
+      - POSTGRES_USER=jdoe
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=babyfoot_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - babyfoot-network
+
+networks:
+  babyfoot-network:
+    driver: bridge
+
+volumes:
+  db-data:
