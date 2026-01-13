@@ -1,14 +1,3 @@
-<script setup lang="ts">
-const teamA = ref('')
-const teamB = ref('')
-const scoreA = ref(0)
-const scoreB = ref(0)
-
-const saveMatch = () => {
-  alert(`Match enregistré : ${teamA.value} ${scoreA.value} - ${scoreB.value} ${teamB.value}`)
-}
-</script>
-
 <template>
   <UContainer class="py-12 max-w-lg">
     <UCard>
@@ -38,3 +27,20 @@ const saveMatch = () => {
     </UCard>
   </UContainer>
 </template>
+
+<script setup lang="ts">
+// Empêche un utilisateur non connecté et n'ayant pas le bon rôle d'accèder à la page
+definePageMeta({
+  middleware: 'auth' as any,
+  role: 'ADMIN'
+})
+
+const teamA = ref('')
+const teamB = ref('')
+const scoreA = ref(0)
+const scoreB = ref(0)
+
+const saveMatch = () => {
+  alert(`Match enregistré : ${teamA.value} ${scoreA.value} - ${scoreB.value} ${teamB.value}`)
+}
+</script>

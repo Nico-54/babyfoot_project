@@ -1,12 +1,3 @@
-<script setup lang="ts">
-// On simule quelques statistiques pour l'accueil
-const stats = [
-  { label: 'Matchs joués', value: '42', icon: 'i-heroicons-trophy' },
-  { label: 'Joueurs actifs', value: '12', icon: 'i-heroicons-users' },
-  { label: 'Buts marqués', value: '384', icon: 'i-heroicons-chart-bar' }
-]
-</script>
-
 <template>
   <UContainer class="py-12">
     <div class="text-center mb-16">
@@ -17,7 +8,7 @@ const stats = [
         Babyfoot <span class="text-primary-500">Manager</span>
       </h1>
       <p class="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-        L'outil ultime pour organiser vos tournois au bureau, suivre les scores et humilier vos collègues (avec respect).
+        L'outil pour organiser vos tournois au bureau, suivre les scores et humilier vos collègues (avec respect).
       </p>
     </div>
 
@@ -32,14 +23,16 @@ const stats = [
     </div>
 
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <UButton
-        size="xl"
-        icon="i-heroicons-plus-circle"
-        label="Nouveau Match"
-        color="primary"
-        trailing
-        to="/match/new"
-      />
+      <template v-if="authStore.user?.role === 'ADMIN'">
+        <UButton
+          size="xl"
+          icon="i-heroicons-plus-circle"
+          label="Nouveau Tournoi"
+          color="primary"
+          trailing
+          to="/tournament/new"
+        />
+      </template>
       <UButton
         size="xl"
         icon="i-heroicons-list-bullet"
@@ -52,7 +45,7 @@ const stats = [
 
     <div class="mt-20">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold">Derniers affrontements</h2>
+        <h2 class="text-2xl font-bold">Derniers tournois</h2>
         <UButton variant="ghost" label="Voir tout" icon="i-heroicons-arrow-right" trailing />
       </div>
       
@@ -76,3 +69,16 @@ const stats = [
     </div>
   </UContainer>
 </template>
+
+<script setup lang="ts">
+  import { useAuthStore } from '../stores/useAuth'
+
+  const authStore = useAuthStore()
+
+  // On simule quelques statistiques pour l'accueil
+  const stats = [
+    { label: 'Matchs joués', value: '42', icon: 'i-heroicons-trophy' },
+    { label: 'Joueurs actifs', value: '12', icon: 'i-heroicons-users' },
+    { label: 'Buts marqués', value: '384', icon: 'i-heroicons-chart-bar' }
+  ]
+</script>

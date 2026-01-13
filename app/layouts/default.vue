@@ -8,16 +8,32 @@
         </NuxtLink>
 
         <div class="flex items-center gap-4">
-          <UButton to="/match/new" variant="ghost" color="neutral" icon="i-heroicons-plus-circle">
-            Nouveau Match
-          </UButton>
+          <template v-if="authStore.user?.role === 'ADMIN'">
+              <UButton to="/tournament/new" variant="ghost" color="neutral" icon="i-heroicons-plus-circle">
+                Nouveau Tournoi
+              </UButton>
+          </template>
           <UButton to="/leaderboard/leaderboard" variant="ghost" color="neutral" icon="i-heroicons-chart-bar">
             Classement
           </UButton>
           
           <div class="border-l border-gray-200 dark:border-gray-800 h-6 mx-2" />
           
-          <UButton to="/log/sign" label="Connexion" />
+          <template v-if="!authStore.isAuthenticated">
+            <UButton 
+              to="/log/sign" 
+              label="Connexion"
+              variant="soft" 
+            />
+          </template>
+          <template v-else>
+            <UButton 
+              label="Déconnexion"
+              @click="handleLogout"
+              color="error"
+              variant="soft"
+            />
+          </template>
         </div>
       </UContainer>
     </nav>
@@ -27,3 +43,13 @@
     </main>
   </div>
 </template>
+
+<script setup lang="ts">
+  import { useAuthStore } from '../stores/useAuth'
+
+  const authStore = useAuthStore()
+
+  const handleLogout = () => {
+    authStore.logout()
+  }
+</script>
