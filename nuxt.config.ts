@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   },
 
   // 2. Module Nuxt UI (qui inclut Tailwind)
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@pinia/nuxt'],
 
   css: ['~/assets/css/main.css'],
 
