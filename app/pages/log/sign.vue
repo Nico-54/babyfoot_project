@@ -90,7 +90,6 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
         // Extraction des données
         const bodyData = payload.data as Record<string, any>
 
-        console.log('Inscription avec :', payload.data)
         const { data, error } = await useFetch('http://localhost:5000/api/users/register', {
             method: 'POST',
             body: bodyData,
@@ -109,7 +108,6 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
         }
 
     } else {
-        console.log('Connexion avec :', payload.data)
         // Extraction des données
         const bodyData = payload.data as Record<string, any>
 
