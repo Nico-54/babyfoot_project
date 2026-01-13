@@ -25,7 +25,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 // Import Store
-import { useAuthStore } from '~/stores/auth';
+import { useAuthStore } from '~/stores/useAuth';
 
 // Etat pour basculer entre Login et Inscription
 const isSignUp = ref(false);
