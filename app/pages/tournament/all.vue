@@ -53,7 +53,7 @@
                             </div>
                         </div>
 
-                        <UButton label="Voir les détails" block variant="ghost" :to="`/tournaments/${tournament.id}`"></UButton>
+                        <UButton label="Voir les détails" block variant="ghost" :to="`/tournament/${tournament.id}`"></UButton>
                     </div>
                 </UCard>
             </div>

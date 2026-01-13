@@ -64,3 +64,27 @@ export const allTournament = async (req:Request, res: Response) => {
         return res.status(500).json({ message: "Erreur lors de la récupération" })
     }
 }
+
+// Méthode de récupération 
+export const tournamentInfo = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id;
+        
+        const tournamentInfo = await prisma.tournament.findUnique({
+            where: {
+                id
+            }
+        });
+
+        
+        if (!tournamentInfo) {
+            return res.status(404).json({ message: "Tournoi non trouvé" });
+        }
+
+
+        return res.status(200).json(tournamentInfo);
+    } catch (error: unknown) {
+        console.error("Détail de l'erreur 500 :", error);
+        return res.status(500).json({ message: "Erreur lors de la récupération "})
+    }
+} 
