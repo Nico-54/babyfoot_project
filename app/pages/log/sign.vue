@@ -24,6 +24,8 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+// Import Store
+import { useAuthStore } from '~/stores/auth';
 
 // Etat pour basculer entre Login et Inscription
 const isSignUp = ref(false);
@@ -70,6 +72,17 @@ const schema = computed(() => {
 // z.infer pour suivre les changements du schéma
 type Schema = z.infer<typeof schema>
 
+// Interface qui décris le format de retour de l'api
+interface LoginResponse {
+    message: string
+    token: string
+    user: string
+    email: string
+    id: string
+    name: string
+    role: string 
+}
+
 async function onSubmit(payload: FormSubmitEvent<any>) {
     errorMessage.value = ''
 
@@ -96,12 +109,11 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
         }
 
     } else {
-        console.log('Connexion avec :', payload)
+        console.log('Connexion avec :', payload.data)
         // Extraction des données
         const bodyData = payload.data as Record<string, any>
 
-        console.log('Inscription avec :', payload.data)
-        const { data, error } = await useFetch('http://localhost:5000/api/users/login', {
+        const { data, error } = await useFetch<LoginResponse>('http://localhost:5000/api/users/login', {
             method: 'POST',
             body: bodyData,
             onResponseError({ response }) {
@@ -115,6 +127,15 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
 
         if (data.value) {
             // Connexion réussie
+            // Store
+            const authStore = useAuthStore()
+            
+            // Extraction des données
+            const { user, token } = data.value
+
+            // Enregistrement dans le store
+            authStore.setUser(user, token)
+            
             navigateTo('/')
         }
 

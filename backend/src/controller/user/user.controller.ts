@@ -3,6 +3,7 @@ import { userSchema, type UserPublic } from '../../models/user.model'
 import bcrypt from 'bcrypt'
 import prisma from '../../lib/prisma'             
 import { Prisma } from '@prisma/client'
+import jwt from 'jsonwebtoken'
 
 // Méthode d'inscription
 export const register = async (req: Request, res: Response) => {
@@ -60,8 +61,15 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Identifiants invalides" })
         }
 
+        // Génération du JWT
+        const token = jwt.sign(
+            { userId: user.id, role: user.role },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '24h' } // expire après un jour
+        )
+
         // Réponse succès
-        return res.status(200).json({ message: "Connexion réussie", user: { id: user.id, name: user.name, email: user.email} })
+        return res.status(200).json({ message: "Connexion réussie", user: { id: user.id, name: user.name, email: user.email, role: user.role}, token })
 
     } catch (error) {
         console.error(error)
