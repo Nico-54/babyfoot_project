@@ -46,7 +46,7 @@
     <div class="mt-20">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold">Derniers tournois</h2>
-        <UButton variant="ghost" label="Voir tout" icon="i-heroicons-arrow-right" trailing />
+        <UButton variant="ghost" label="Voir tout" icon="i-heroicons-arrow-right" trailing to="/tournament/all" />
       </div>
       
       <UCard variant="soft" class="overflow-hidden">
