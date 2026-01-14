@@ -214,3 +214,48 @@ export const checkUserTournament = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Erreur lors de la vérification' });
     }
 }
+
+// Méthode d'ajout d'équipe à un tournoi
+export const addTeams = async (req: Request, res: Response) => {
+    try {
+        // Récupération de l'id du tournoi
+        const { tournamentId } = req.params;
+
+        // Récupération des ids des équipes
+        const teamIds = req.body.teamIds;
+
+        // Vérification de la présence des données
+        if (!tournamentId || !teamIds) {
+            res.status(400).json({ message: "Donnée manquante" })
+        }
+
+        // Mise à jour du tournoi en rajoutant les équipes
+        const updatedTournament = await prisma.tournament.update({
+            where: {
+                id: tournamentId,
+            },
+            data: {
+                teams: {
+                    // set: permet le remplacement des données
+                    // il compare l'ancienne version avec la nouvelle avec de mettre à jour
+                    set: teamIds.map((teamId: string) => ({ id: teamId }))
+                }
+            },
+            include: {
+                teams,
+                _count: { select: { teams: true } }
+            }
+        });
+
+        return res.status(200).json({
+            message: "Ajout des équipes réussi",
+            totalTeams: updatedTournament._count.teams,
+            teams: updatedTournament.teams,
+
+        })
+        
+    } catch (error) {
+        console.error("Erreur addTeams:", error);
+        return res.status(500).json({ message: "Erreur lors de la mise à jour des équipes" });
+    }
+}
