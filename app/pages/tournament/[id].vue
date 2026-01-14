@@ -1,6 +1,6 @@
 <template>
   <UContainer class="py-10">
-    <UButton to="/tournaments" icon="mdi-light:arrow-left" variant="ghost" class="mb-6">
+    <UButton to="/tournament/all" icon="mdi-light:arrow-left" variant="ghost" class="mb-6">
       Retour aux tournois
     </UButton>
 
@@ -23,7 +23,7 @@
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="font-bold">Participants inscrits</h3>
-              <span class="text-sm text-gray-400">12 / 32 joueurs</span>
+              <span class="text-sm text-gray-400">{{ tournament?.countsPlayer }} joueurs</span>
             </div>
           </template>
           
@@ -44,7 +44,9 @@
                 <UIcon name="mdi-light:calendar" class="text-primary text-xl" />
                 <div>
                   <p class="font-bold text-gray-200">Date & Heure</p>
-                  <p class="text-gray-400">{{ tournament?.date }} à {{ tournament?.time }}</p>
+                  <p class="text-gray-400" v-if="tournament?.date && tournament?.time">
+                    {{ new Date(tournament.date).toLocaleDateString() }} à {{ tournament?.time }}
+                  </p>
                 </div>
               </div>
               <div class="flex items-center gap-3">
@@ -63,7 +65,7 @@
                 block 
                 size="xl" 
                 color="primary" 
-                label="S'inscrire maintenant" 
+                :label="isRegistered ? 'Se désincrire' : 'S\'inscrire maintenant'" 
                 icon="mdi-light:check-circle"
                 @click="handleRegister"
                 />
@@ -91,12 +93,16 @@ const toast = useToast();
 
 const route = useRoute();
 
+// Boolean d'inscription de l'utilsateur
+const isRegistered = ref(false);
+
 // Interface
 interface Tournament {
     name: string,
     date: string,
     time: string,
     localisation: string,
+    countsPlayer: string,
 }
 
 // Récupération des informations du tournoi grâce à l'ID
@@ -115,7 +121,95 @@ if (error.value) {
 }
 
 // Fonction d'inscription au tournoi
-const handleRegister = () => {
-    console.log('Inscrit');
+const handleRegister = async () => {
+    /* 
+      Pensez à vérifier si on a isRegistered
+      Si oui alors on appel la route de désincription
+      Sinon la route de connexion
+    */
+   
+  // Récupération de l'id du tournoi
+  const tournamentId = route.params.id;
+
+  // Si l'utilisateur n'est pas inscrit au tournoi
+  if (!isRegistered.value) {
+
+    try {
+      const response = await $fetch<any>(`http://localhost:5000/api/tournaments/registerTournament/${tournamentId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      })
+      if (tournament.value) {
+        tournament.value.countsPlayer = response.totalInscrits;
+        console.info(tournament.value);
+      }
+      toast.add({
+        title: 'Inscription réussie !',
+        description: 'Vous êtes bien inscrit pour le tournoi',
+        color: 'success',
+        icon: 'mdi-light:check-circle'
+      });
+
+    } catch (err) {
+      toast.add({
+        title: 'Erreur !',
+        description: 'Une erreur est survenue lors de votre inscription',
+        color: 'error',
+        icon: 'mdi-light:alert-octagon'
+      });
+    }
+  } else {
+        try {
+      const response = await $fetch<any>(`http://localhost:5000/api/tournaments/retiredTournament/${tournamentId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      })
+      if (tournament.value) {
+        tournament.value.countsPlayer = response.totalInscrits;
+        console.info(tournament.value);
+      }
+      toast.add({
+        title: 'Inscription retirée !',
+        description: 'Vous êtes désincrit pour le tournoi',
+        color: 'success',
+        icon: 'mdi-light:check-circle'
+      });
+
+    } catch (err) {
+      toast.add({
+        title: 'Erreur !',
+        description: 'Une erreur est survenue lors de votre désinscription',
+        color: 'error',
+        icon: 'mdi-light:alert-octagon'
+      });
+    }
+  }
 };
+
+// Fonction de vérification
+const checkStatus = async () => {
+  if (!authStore.isAuthenticated) return;
+
+  const tournamentId = route.params.id 
+
+  // Requête permettant de vérifier 
+  // si l'utilisateur est incrit au tournoi ou non
+  const data = await $fetch<any>(`http://localhost:5000/api/tournaments/${tournamentId}/check-status`, {
+    headers: {
+      Authorization: `Bearer ${authStore.token}`
+    }
+  });
+
+  isRegistered.value = data.registered;
+}
+
+onMounted(() => {
+  if (authStore.token) {
+    checkStatus();
+  }
+})
 </script>

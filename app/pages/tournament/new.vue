@@ -80,6 +80,23 @@
           />
         </UFieldGroup>
 
+        <!-- DESCRIPTION -->
+         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-white/5 p-4 rounded-lg">
+          <UFieldGroup
+            label="Description"
+            name="description"
+            help="Description du tournoi"
+          >
+            <UTextarea
+              v-model="state.localisation"
+              icon="mdi-light:pencil"
+              placeholder="Tournoi d'entrainement"
+              size="lg"
+              class="font-medium"
+            />
+          </UFieldGroup>
+        </div>
+
         <!-- ACTION -->
         <div class="pt-6">
           <UButton
@@ -112,13 +129,14 @@ const state = reactive({
   name: '',
   date: '',
   time: '',
-  localisation: ''
+  localisation: '',
+  description: '',
 });
 
 const onSubmit = async (event: any) => {
   loading.value = true
   try {
-    await $fetch('http://localhost:5000/api/tournaments/register', {
+    await $fetch('http://localhost:5000/api/tournaments/createTournament', {
       method: 'POST',
       body: event.data,
       headers: {
@@ -130,7 +148,8 @@ const onSubmit = async (event: any) => {
       name: '',
       date: '',
       time: '',
-      localisation: ''
+      localisation: '',
+      description: ''
     })
 
     toast.add({
