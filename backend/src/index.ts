@@ -4,6 +4,7 @@ import cors from 'cors';
 // Import des routes
 import userRoutes from './routes/user/user.routes'
 import tournamentRoutes from './routes/tournament/tournament.routes'
+import teamRoutes from './routes/team/team.routes'
 
 const app = express();
 app.use(cors()); // Autorise Nuxt à parler au Backend
@@ -12,6 +13,7 @@ app.use(express.json()); // Permet de lire le JSON envoyé
 // Déclaration des routes
 app.use('/api/users', userRoutes)
 app.use('/api/tournaments', tournamentRoutes)
+app.use('/api/teams', teamRoutes)
 
 // Route pour la santé
 app.get('/api/health', (req, res) => {

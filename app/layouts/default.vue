@@ -9,8 +9,12 @@
 
         <div class="flex items-center gap-4">
           <template v-if="authStore.user?.role === 'ADMIN'">
-              <UButton to="/tournament/new" variant="ghost" color="neutral" icon="i-heroicons-plus-circle">
-                Nouveau Tournoi
+              <UButton to="/tournament/all" variant="ghost" color="neutral" icon="i-heroicons-plus-circle">
+                Tous les Tournois
+              </UButton>
+
+              <UButton to="/team/all" variant="ghost" color="neutral" icon="i-heroicons-plus-circle">
+                Toutes les Equipes
               </UButton>
           </template>
           <UButton to="/leaderboard/leaderboard" variant="ghost" color="neutral" icon="i-heroicons-chart-bar">

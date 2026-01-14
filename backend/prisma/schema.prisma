@@ -28,10 +28,28 @@ model User {
 
   // Un utilisateur peut avoir créé plusieurs tournois
   createdTournaments Tournament[] @relation("TournamentCreator")
+
+  // Equipe créer par l'utilisateur
+  createdTeams Team[] @relation("TeamCreator")
     
   // Relations : un utilisateur peut participer à plusieurs matchs
   matchesAsPlayer1 Match[] @relation("Player1")
   matchesAsPlayer2 Match[] @relation("Player2")
+}
+
+// --- EQUIPES ---
+model Team {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  members   String[]
+  createdAt DateTime @default(now())
+
+  // Les tournois auxquels l'équipe participe
+  tournaments Tournament[] @relation("TournamentTeams")
+
+    // Relations avec le créateur du tournoi
+  creatorId     String
+  creator       User      @relation("TeamCreator", fields: [creatorId], references: [id])
 }
 
 // --- TOURNOIS ---
@@ -46,6 +64,9 @@ model Tournament {
   
   // Relation pour les participants
   players      User[]   @relation("TournamentPlayers")
+
+  // Les tournois auxquels l'équipe participe
+  teams Team[] @relation("TournamentTeams")
   
   // Relations avec le créateur du tournoi
   creatorId     String
