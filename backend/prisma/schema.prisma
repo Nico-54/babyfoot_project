@@ -22,10 +22,34 @@ model User {
   password  String
   role      String   @default("PLAYER")
   createdAt DateTime @default(now())
-  
+
+  // Relation inverse : les tournois auxquels le joueur participe
+  tournaments Tournament[] @relation("TournamentPlayers")
+
+  // Un utilisateur peut avoir créé plusieurs tournois
+  createdTournaments Tournament[] @relation("TournamentCreator")
+    
   // Relations : un utilisateur peut participer à plusieurs matchs
-  // matchesAsPlayer1 Match[] @relation("Player1")
-  // matchesAsPlayer2 Match[] @relation("Player2")
+  matchesAsPlayer1 Match[] @relation("Player1")
+  matchesAsPlayer2 Match[] @relation("Player2")
+}
+
+// --- TOURNOIS ---
+model Tournament {
+  id            String   @id @default(uuid())
+  name          String
+  date          DateTime
+  time          String
+  localisation  String
+  description   String
+  createdAt DateTime @default(now())
+  
+  // Relation pour les participants
+  players      User[]   @relation("TournamentPlayers")
+  
+  // Relations avec le créateur du tournoi
+  creatorId     String
+  creator       User      @relation("TournamentCreator", fields: [creatorId], references: [id])
 }
 
 // --- MATCH ---
@@ -36,9 +60,9 @@ model Match {
   createdAt DateTime @default(now())
 
   // Relations avec les utilisateurs
-  // player1Id String
-  // player1   User   @relation("Player1", fields: [player1Id], references: [id])
+  player1Id String
+  player1   User   @relation("Player1", fields: [player1Id], references: [id])
   
-  // player2Id String
-  // player2   User   @relation("Player2", fields: [player2Id], references: [id])
+  player2Id String
+  player2   User   @relation("Player2", fields: [player2Id], references: [id])
 }

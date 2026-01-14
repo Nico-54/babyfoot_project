@@ -1,13 +1,15 @@
+//Permet de protéger les accès aux routes
+
 export default defineNuxtRouteMiddleware((to, from) => {
   const authStore = useAuthStore()
   const user = authStore.user as { role: string } | null
 
-  // 1. Vérifier si l'utilisateur est connecté
+  // Vérifier si l'utilisateur est connecté
   if (!authStore.isAuthenticated) {
     return navigateTo('/log/sign')
   }
 
-  // 2. Vérifier les rôles
+  // Vérifier les rôles
   const requiredRole = to.meta.role
 
   if (requiredRole && user?.role !== requiredRole) {
