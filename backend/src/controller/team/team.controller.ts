@@ -1,41 +1,35 @@
 import { Request, Response } from 'express'
-import { tournamentSchema } from '../../models/tournament.model'
 import prisma from '../../lib/prisma'             
-import { connect } from 'node:http2'
 
 // Méthode de création d'un tournoi
-export const createTournament = async (req: Request, res: Response) => {
-    // Validation Zod
-    const result = tournamentSchema.safeParse(req.body)
-    if (!result.success) {
-        return res.status(400).json({ errors: result.error.flatten().fieldErrors })
-    }
-
-    const validatedData = result.data
+export const createTeam = async (req: Request, res: Response) => {
+    const data = req.body
     const user = (req as any).user
 
     // Enregistrement Prisma
     try {
-        const newTournament = await prisma.tournament.create({
+        const newTournament = await prisma.team.create({
             data : { 
-                name: validatedData.name,
-                date: new Date(validatedData.date), // Conversion si ton schéma Prisma utilise DateTime
-                time: validatedData.time,
-                localisation: validatedData.localisation,
-                description: validatedData.description,
+                name: data.name,
+                members: data.members,
                 creatorId: user.userId,
              }
         })
 
         return res.status(201).json(newTournament)
-    } catch(error: unknown) {
+    } catch(error: any) {
+        if (error.code === 'P2002') {
+            return res.status(409).json({ 
+                message: "Une équipe avec ce nom existe déjà." 
+            });
+        }
         console.error("Détail de l'erreur 500 :", error);
         return res.status(500).json({ message: "Erreur lors de la création" })
     }
 }
 
 // Méthode pour récupérer tous les tournois
-export const allTournament = async (req:Request, res: Response) => {
+export const allTeam = async (req:Request, res: Response) => {
     try {
         // Récupération et conversion des paramètres
         const page = parseInt(req.query.page as string) || 1;
@@ -43,8 +37,8 @@ export const allTournament = async (req:Request, res: Response) => {
         // Calcul combien d'enregistrement passer
         const skip = (page - 1) * limit;
 
-        const [tournaments, total] = await Promise.all([
-            prisma.tournament.findMany({
+        const [teams, total] = await Promise.all([
+            prisma.team.findMany({
                 skip: skip,
                 take: limit,
                 orderBy: { createdAt: 'desc' } // Du dernier créer au premier
@@ -53,7 +47,7 @@ export const allTournament = async (req:Request, res: Response) => {
         ]);
 
         return res.status(200).json({
-            data: tournaments,
+            data: teams,
             pagination: {
                 total,
                 page,
@@ -68,18 +62,17 @@ export const allTournament = async (req:Request, res: Response) => {
 }
 
 // Méthode de récupération 
-export const tournamentInfo = async (req: Request, res: Response) => {
+export const teamInfo = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         
         const tournamentInfo = await prisma.tournament.findUnique({
-                    where: { id },
-                    include: {
-                        // On demande à Prisma de joindre les données des équipes
-                        teams: true, 
-                        // On garde le count pour le badge "X équipes"
-                        _count: { select: { teams: true } }
-                    },
+            where: {
+                id
+            },
+            include: {
+                _count: { select: { players: true } }
+            },
         });
 
         
@@ -95,9 +88,8 @@ export const tournamentInfo = async (req: Request, res: Response) => {
     }
 }
 
-// Méthode pour s'inscrire à un tournoi
-// Pour un utilisateur classique
-export const registerTournament = async (req: Request, res: Response) => {
+// Méthode pour inscrire une équipe à un tournoi
+export const registerTeamTournament = async (req: Request, res: Response) => {
     try{
 
         // Récupération de l'id du tournoi
@@ -142,9 +134,8 @@ export const registerTournament = async (req: Request, res: Response) => {
     }
 }
 
-// Méthode pour se retirer d'un tournoi
-// Pour un utilisateur classique
-export const retiredTournament = async (req: Request, res: Response) => {
+// Méthode pour retirer une équipe d'un tournoi
+export const retiredTeamTournament = async (req: Request, res: Response) => {
     try{
 
         // Récupération de l'id du tournoi
@@ -186,76 +177,5 @@ export const retiredTournament = async (req: Request, res: Response) => {
         if (error instanceof Error) {
         console.log(error.message);
         };
-    }
-}
-
-// Méthode vérifiant si l'utilisateur est inscrit au tournoi ou non
-export const checkUserTournament = async (req: Request, res: Response) => {
-    try {
-
-        // Récupération de l'id de tournoi
-        const tournamentId = req.params.tournamentId;
-
-        // Récupération de l'id de l'utilisateur
-        const userId = (req as any).user.userId;
-
-
-        const isRegistered = await prisma.tournament.findFirst({
-            where: {
-                id: tournamentId,
-                players: {
-                    some: {
-                        id: userId
-                    }
-                }
-            }
-        });
-
-        // Retourne un booléen pour le front
-        return res.status(200).json({ registered: !!isRegistered});
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la vérification' });
-    }
-}
-
-// Méthode d'ajout d'équipe à un tournoi
-export const addTeams = async (req: Request, res: Response) => {
-    try {
-        // Récupération de l'id du tournoi
-        const { tournamentId } = req.params;
-
-        // Récupération des ids des équipes
-        const { teamsIds } = req.body;
-
-        // Vérification de la présence des données
-        if (!tournamentId || !teamsIds || !Array.isArray(teamsIds)) {
-            res.status(400).json({ message: "Données manquantes ou format invalide" })
-        }
-
-        // Mise à jour du tournoi en rajoutant les équipes
-        const updatedTournament = await prisma.tournament.update({
-            where: {
-                id: tournamentId,
-            },
-            data: {
-                teams: {
-                    // set: permet le remplacement des données
-                    // il compare l'ancienne version avec la nouvelle avec de mettre à jour
-                    set: teamsIds.map((teamId: string) => ({ id: teamId }))
-                }
-            },
-            include: {
-                _count: { select: { teams: true } }
-            }
-        });
-
-        return res.status(200).json({
-            message: "Ajout des équipes réussi",
-            totalTeams: updatedTournament._count.teams,
-        });
-        
-    } catch (error) {
-        console.error("Erreur addTeams:", error);
-        return res.status(500).json({ message: "Erreur lors de la mise à jour des équipes" });
     }
 }

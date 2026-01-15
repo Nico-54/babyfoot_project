@@ -22,7 +22,7 @@ export const register = async (req: Request, res: Response) => {
             data: {
                 ...result.data,
                 password: hashedPassword,
-                role: 'PLAYER'
+                role: 'ADMIN'
             }
         })
 

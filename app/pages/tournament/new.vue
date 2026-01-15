@@ -88,7 +88,7 @@
             help="Description du tournoi"
           >
             <UTextarea
-              v-model="state.localisation"
+              v-model="state.description"
               icon="mdi-light:pencil"
               placeholder="Tournoi d'entrainement"
               size="lg"
@@ -138,7 +138,7 @@ const onSubmit = async (event: any) => {
   try {
     await $fetch('http://localhost:5000/api/tournaments/createTournament', {
       method: 'POST',
-      body: event.data,
+      body: state,
       headers: {
         Authorization: `Bearer ${authStore.token}`
       }
