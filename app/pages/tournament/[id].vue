@@ -145,6 +145,10 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '../../stores/useAuth'
+definePageMeta({
+  middleware: 'auth' as any,
+  role: 'ADMIN'
+})
 
 // Store
 const authStore = useAuthStore();
@@ -353,4 +357,12 @@ onMounted(() => {
     checkStatus();
   }
 })
+
+// TODO: Ajouter un état "started" au tournoi
+// TODO: Générer les matchs en round-robin lors du lancement
+// TODO: Bloquer l'ajout d'équipes une fois le tournoi lancé
+// TODO: Calculer le classement à partir des résultats des matchs
+// TODO: Ajouter une interface de saisie des scores
+// TODO: Mettre à jour le classement en temps réel
+
 </script>

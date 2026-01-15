@@ -102,6 +102,10 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '../../stores/useAuth'
+definePageMeta({
+  middleware: 'auth' as any,
+  role: 'ADMIN'
+})
 
 const authStore = useAuthStore();
 const toast = useToast();
@@ -175,4 +179,6 @@ const onSubmit = async () => {
     loading.value = false;
   }
 };
+
+// TODO: Ajouter une limite maximum au nombre de membre d'une équipe
 </script>

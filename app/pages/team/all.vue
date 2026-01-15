@@ -64,6 +64,11 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: 'auth' as any,
+  role: 'ADMIN'
+})
+
 const page = ref(1);
 const limit = 10;
 
@@ -93,4 +98,8 @@ const { data: teams, pending, refresh } = await useFetch<TeamResponse>('http://l
     watch: [page] // Rafraichir automatique
 
 });
+
+// TODO: Pouvoir modifier ou supprimer une équipe
+// TODO: Pouvoir trier l'affichage
+// TODO: Ajouter le détail d'une équipe avec ses derniers scores et/ou derniers tournois
 </script>

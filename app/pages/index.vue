@@ -71,6 +71,9 @@
 </template>
 
 <script setup lang="ts">
+  // TODO: Ajuster le front afin d'afficher le nombre d'équipes et de membres du site
+  // TODO: Afficher les derniers tournois finis avec un accès direct vers le détail
+
   import { useAuthStore } from '../stores/useAuth'
 
   const authStore = useAuthStore()

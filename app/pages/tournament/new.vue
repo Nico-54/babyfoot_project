@@ -120,6 +120,10 @@
 <script setup lang="ts">
 // Import
 import { tournamentSchema } from '../../utils/tournament';
+definePageMeta({
+  middleware: 'auth' as any,
+  role: 'ADMIN'
+})
   
 const authStore = useAuthStore();
 const toast = useToast();
