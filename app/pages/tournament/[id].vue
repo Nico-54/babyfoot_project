@@ -94,47 +94,52 @@
       </div>
     </div>
 
-    <UModal v-model="isTeamModalOpen">
-      <UCard :ui="{ divide: 'divide-y divide-red-800' }">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold">Inscrire des équipes</h3>
-            <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isTeamModalOpen = false" />
-          </div>
-        </template>
+    <ClientOnly>
+      <UModal v-model="isTeamModalOpen">
+        <UCard v-if="isTeamModalOpen" :ui="{ divide: 'divide-y divide-gray-800' }">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold">Inscrire des équipes</h3>
+              <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isTeamModalOpen = false" />
+            </div>
+          </template>
 
-        <div class="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
-          <div v-if="loadingTeams" class="flex justify-center py-10">
-            <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-primary" />
-          </div>
-          <div v-else-if="allTeams.length === 0" class="text-center py-10 text-gray-400">
-            Aucune équipe créée.
-          </div>
-          <div 
-            v-else 
-            v-for="team in allTeams" 
-            :key="team.id"
-            class="flex items-center justify-between p-3 rounded-lg border-white/5 hover:bg-white/5 transitions-colors cursor-pointer"
-            @click="toggleTeam(team.id)"
-          >
-            <div class="flex items-center gap-3">
-              <UCheckbox :model-value="selectedTeamIds.include(team.id)" />
-              <div>
-                  <p class="font-medium text-sm">{{ team.name }}</p>
-                  <p class="font-medium text-sm">{{ team.members.length }} joueurs</p>
+          <div class="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            <div v-if="loadingTeams" class="flex justify-center py-10">
+              <UIcon name="i-heroicons-arrow-path" class="animate-spin text-3xl text-primary" />
+            </div>
+            
+            <div v-else-if="allTeams.length === 0" class="text-center py-10 text-gray-400">
+              Aucune équipe créée.
+            </div>
+
+            <div 
+              v-else
+              v-for="team in allTeams" 
+              :key="team.id"
+              class="flex items-center justify-between p-3 rounded-lg border border-transparent hover:bg-white/5 cursor-pointer transition-all"
+              :class="{ 'bg-primary/10 border-primary/20': selectedTeamIds.includes(team.id) }"
+              @click="toggleTeam(team.id)"
+            >
+              <div class="flex items-center gap-3">
+                <UCheckbox :model-value="selectedTeamIds.includes(team.id)" @click.prevent.stop/>
+                <div>
+                    <p class="font-medium text-sm">{{ team.name }}</p>
+                    <p class="text-[10px] text-gray-400">{{ team.members.length }} joueurs</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <template #footer>
-          <div class="flex justify-end gap-3">
-              <UButton color="neutral" variant="soft" label="Annuler" @click="isTeamModelOpen = false" />
-              <UButton color="primary" variant="soft" label="Confirmer" :loading="savingTeams" @click="saveTeamsSelection" />
-          </div>
-        </template>
-      </UCard>
-    </UModal>
+          <template #footer>
+            <div class="flex justify-end gap-3">
+                <UButton color="neutral" variant="soft" label="Annuler" @click="isTeamModalOpen = false" />
+                <UButton color="primary" label="Confirmer" :loading="savingTeams" @click="saveTeamsSelection" />
+            </div>
+          </template>
+        </UCard>
+      </UModal>
+    </ClientOnly>
   </UContainer>
 </template>
 
@@ -241,7 +246,8 @@ const saveTeamsSelection = async () => {
       icon: 'mdi-light:check-circle'
     });
 
-    refresh();
+    isTeamModalOpen.value = false;
+    await refresh();
   } catch (err) {
     toast.add({
       title: 'Erreur !',

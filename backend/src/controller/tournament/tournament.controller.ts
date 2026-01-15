@@ -73,12 +73,13 @@ export const tournamentInfo = async (req: Request, res: Response) => {
         const id = req.params.id;
         
         const tournamentInfo = await prisma.tournament.findUnique({
-            where: {
-                id
-            },
-            include: {
-                _count: { select: { players: true } }
-            },
+                    where: { id },
+                    include: {
+                        // On demande à Prisma de joindre les données des équipes
+                        teams: true, 
+                        // On garde le count pour le badge "X équipes"
+                        _count: { select: { teams: true } }
+                    },
         });
 
         
@@ -95,6 +96,7 @@ export const tournamentInfo = async (req: Request, res: Response) => {
 }
 
 // Méthode pour s'inscrire à un tournoi
+// Pour un utilisateur classique
 export const registerTournament = async (req: Request, res: Response) => {
     try{
 
@@ -141,6 +143,7 @@ export const registerTournament = async (req: Request, res: Response) => {
 }
 
 // Méthode pour se retirer d'un tournoi
+// Pour un utilisateur classique
 export const retiredTournament = async (req: Request, res: Response) => {
     try{
 
@@ -222,11 +225,11 @@ export const addTeams = async (req: Request, res: Response) => {
         const { tournamentId } = req.params;
 
         // Récupération des ids des équipes
-        const teamIds = req.body.teamIds;
+        const { teamsIds } = req.body;
 
         // Vérification de la présence des données
-        if (!tournamentId || !teamIds) {
-            res.status(400).json({ message: "Donnée manquante" })
+        if (!tournamentId || !teamsIds || !Array.isArray(teamsIds)) {
+            res.status(400).json({ message: "Données manquantes ou format invalide" })
         }
 
         // Mise à jour du tournoi en rajoutant les équipes
@@ -238,11 +241,10 @@ export const addTeams = async (req: Request, res: Response) => {
                 teams: {
                     // set: permet le remplacement des données
                     // il compare l'ancienne version avec la nouvelle avec de mettre à jour
-                    set: teamIds.map((teamId: string) => ({ id: teamId }))
+                    set: teamsIds.map((teamId: string) => ({ id: teamId }))
                 }
             },
             include: {
-                teams,
                 _count: { select: { teams: true } }
             }
         });
@@ -250,9 +252,7 @@ export const addTeams = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: "Ajout des équipes réussi",
             totalTeams: updatedTournament._count.teams,
-            teams: updatedTournament.teams,
-
-        })
+        });
         
     } catch (error) {
         console.error("Erreur addTeams:", error);
