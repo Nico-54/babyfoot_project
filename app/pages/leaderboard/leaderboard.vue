@@ -15,7 +15,7 @@
     import type { TableMeta, Row } from '@tanstack/vue-table'
 
     type Player = {
-        id: string
+        position: string
         playerName: string
         playedMatch: string
         winner: string
@@ -25,7 +25,7 @@
 
     const data = ref<Player[]>([
         {
-            id: '1',
+            position: '1',
             playerName: 'Nicolas',
             playedMatch: '10',
             winner: '5',
@@ -33,7 +33,7 @@
             points: 5,
         },
         {
-            id: '1',
+            position: '1',
             playerName: 'Marc',
             playedMatch: '10',
             winner: '5',
@@ -41,7 +41,7 @@
             points: 5,
         },
         {
-            id: '1',
+            position: '1',
             playerName: 'Jean',
             playedMatch: '10',
             winner: '5',
@@ -49,7 +49,7 @@
             points: 5,
         },
         {
-            id: '1',
+            position: '1',
             playerName: 'Benoit',
             playedMatch: '10',
             winner: '5',
@@ -120,4 +120,6 @@
             },
         },
     ]
+
+    // TODO: Modifier le leaderbord pour afficher les meilleurs équipes
 </script>

@@ -79,6 +79,10 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '../../stores/useAuth';
+definePageMeta({
+  middleware: 'auth' as any,
+  role: 'ADMIN'
+})
 
 const authStore = useAuthStore();
 const page = ref(1);
@@ -111,4 +115,6 @@ const { data: tournaments, pending, refresh } = await useFetch<TournamentRespons
     },
     watch: [page] // Rafraichir automatique
 });
+
+// TODO: Pouvoir modifier un tournoi, le supprimer
 </script>
