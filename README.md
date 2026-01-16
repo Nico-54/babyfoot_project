@@ -66,6 +66,11 @@ Génération du client Prisma (dossier backend) : utile afin d'éviter que votre
 npx prisma generate 
 ```
 
+Créer un fichier .env dans le dossier backend et copier coller le contenu du .env.example
+Vous aurez la strucutre de votre '.env'. Pensez à remplacer les informations par les données trouvable dans le fichier docker-copose.yml
+
+Pour 'JWT_SECRET', il vous servira à signer le token lors de la connexion.
+
 ## Lancement de Docker
 Afin de pouvoir accéder au siteweb, lancer vos conteneurs Docker
 
